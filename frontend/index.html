@@ -40,57 +40,19 @@
       </section>
 
       <section class="work-card" aria-live="polite">
-        <div id="phase-banner" class="phase-banner" hidden></div>
-        <section id="training-view" class="phase-view">
-          <div class="section-heading">
-            <div class="avatar" aria-hidden="true">✦</div>
-            <div><h2>Your tutor</h2><p>Kind, curious, and ready to help</p></div>
-            <span id="response-counter" class="counter">0 / 10 replies</span>
-          </div>
-          <div id="chat-log" class="chat-log" role="log" aria-label="Conversation"></div>
-          <div id="chat-loading" class="loading-row" hidden><span class="spinner"></span><span>Your tutor is thinking…</span></div>
-          <form id="chat-form" class="composer">
-            <label class="sr-only" for="message-input">Your message</label>
-            <textarea id="message-input" rows="1" maxlength="4000" placeholder="Ask a question or tell your tutor what interests you…" required></textarea>
-            <button id="send-button" class="send-button" type="submit" aria-label="Send message">↑</button>
-          </form>
-          <p class="composer-hint">Press Enter to send · Shift + Enter for a new line</p>
-        </section>
-
-        <section id="testing-view" class="phase-view" hidden>
-          <div class="section-heading">
-            <div class="avatar assessment-avatar" aria-hidden="true">✎</div>
-            <div><h2>Knowledge check</h2><p>Choose one answer for each question</p></div>
-            <span id="question-counter" class="counter">Question 1 of 15</span>
-          </div>
-          <div id="quiz-content" class="quiz-content"></div>
-          <div id="grading-loading" class="loading-row" hidden><span class="spinner"></span><span>Checking your answers…</span></div>
-          <div id="feedback-list" class="feedback-list" hidden></div>
-        </section>
-
-        <section id="evaluating-view" class="phase-view" hidden>
-          <div class="section-heading">
-            <div class="avatar feedback-avatar" aria-hidden="true">♡</div>
-            <div><h2>Feedback for your tutor</h2><p>Your candid responses help us evaluate the experience</p></div>
-            <span id="evaluation-counter" class="counter">Question 1 of 4</span>
-          </div>
-          <div id="evaluation-content" class="evaluation-content"></div>
-          <div id="evaluation-loading" class="loading-row" hidden><span class="spinner"></span><span>Saving your response…</span></div>
-          <div id="survey-launch" class="survey-launch" hidden>
-            <div class="goodbye-message"><div class="avatar" aria-hidden="true">✦</div><p id="goodbye-text"></p></div>
-            <h3>One last step</h3>
-            <p>Please complete a short, separate survey about the tutor’s tone and manner. It will open in a new window. You can optionally include your name.</p>
-            <button id="open-survey" class="primary-button" type="button">Open the feedback survey <span aria-hidden="true">↗</span></button>
-            <p id="survey-error" class="error-text" role="alert" hidden></p>
-          </div>
-        </section>
-
-        <section id="done-view" class="phase-view done-view" hidden>
-          <div class="done-icon" aria-hidden="true">✓</div>
-          <p class="eyebrow">Study complete</p>
-          <h2>Thank you for participating.</h2>
-          <p>Your responses have been saved. You may close this page now.</p>
-        </section>
+        <div class="section-heading">
+          <div id="stage-avatar" class="avatar" aria-hidden="true">✦</div>
+          <div><h2 id="stage-title">Your tutor</h2><p id="stage-description">Kind, curious, and ready to help</p></div>
+          <span id="stage-counter" class="counter">0 / 10 replies</span>
+        </div>
+        <div id="chat-log" class="chat-log" role="log" aria-label="Study conversation" aria-live="polite"></div>
+        <div id="loading-row" class="loading-row" hidden><span class="spinner"></span><span id="loading-label">Your tutor is thinking…</span></div>
+        <form id="chat-form" class="composer">
+          <label class="sr-only" for="message-input">Your message</label>
+          <textarea id="message-input" rows="1" maxlength="4000" placeholder="Ask a question or tell your tutor what interests you…" required></textarea>
+          <button id="send-button" class="send-button" type="submit" aria-label="Send message">↑</button>
+        </form>
+        <p id="composer-hint" class="composer-hint">Press Enter to send · Shift + Enter for a new line</p>
       </section>
       <footer class="page-footer"><span>Research prototype</span><span>Your responses are saved for this study.</span></footer>
     </main>
