@@ -1,6 +1,6 @@
 // Independent questionnaire condition. Keep these item IDs/order/text aligned with app.js.
 const SESSION_DONE_PREFIX = "fieldnotes_session_done_";
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://immortal-hot-cat.ngrok-free.app";
 const ITEMS = [
   { id: "friendly", construct: "friendliness", statement: "The tutor was friendly." },
   { id: "clear", construct: "clarity", statement: "The tutor explained things clearly." },
