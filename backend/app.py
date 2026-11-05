@@ -40,7 +40,7 @@ TRAINING_FACTS = [
 
 WELCOME = """Hello! I’m your tutor for a short lesson about whales. Here are the 15 facts we’ll use today. Read through them, then ask me if you’d like any of them clarified.
 
-""" + "\n".join(f"{index}. {fact}" for index, fact in enumerate(TRAINING_FACTS, start=1)) + "\n\nYou can ask clarification questions, or press the button below to begin the knowledge check whenever you’re ready."
+""" + "\n\n".join(f"**{index}.** {fact}" for index, fact in enumerate(TRAINING_FACTS, start=1)) + "\n\n**Ask me questions** about any of these facts, or use the **Take quiz** button below whenever you’re ready."
 
 SYSTEM_PROMPT = """You are a kind, smart professor tutoring a participant about whales. The participant has already been shown a fixed list of 15 whale facts. Answer their clarification questions warmly and accurately, using only the facts in the provided conversation and the fact list below. Do not introduce additional factual claims or quiz the participant. If asked about something outside the list, say that it is outside the scope of this short lesson. Keep answers concise. The lesson list is:
 """ + "\n".join(f"{index}. {fact}" for index, fact in enumerate(TRAINING_FACTS, start=1))
@@ -48,18 +48,13 @@ SYSTEM_PROMPT = """You are a kind, smart professor tutoring a participant about 
 # The five factual questions are shown in the frontend; correct options remain server-side.
 ANSWER_KEY = ["B", "D", "A", "C", "E"]
 
-# Adapted 5-item friendliness and 4-item competence rating sets.
-# The article reports these index sizes and 10-point ratings, but not the original item wording.
+# Five adapted feedback items, rated on a 10-point scale.
 EVALUATION_ITEMS = [
     {"id": "friendly", "construct": "friendliness", "statement": "The tutor was friendly."},
-    {"id": "warm", "construct": "friendliness", "statement": "The tutor was warm."},
-    {"id": "polite", "construct": "friendliness", "statement": "The tutor was polite."},
-    {"id": "considerate", "construct": "friendliness", "statement": "The tutor was considerate."},
+    {"id": "clear", "construct": "clarity", "statement": "The tutor explained things clearly."},
+    {"id": "competent_knowledgeable", "construct": "competence", "statement": "The tutor was competent and knowledgeable."},
     {"id": "pleasant", "construct": "friendliness", "statement": "The tutor was pleasant to interact with."},
-    {"id": "competent", "construct": "competence", "statement": "The tutor was competent."},
-    {"id": "knowledgeable", "construct": "competence", "statement": "The tutor was knowledgeable about whales."},
-    {"id": "capable", "construct": "competence", "statement": "The tutor was capable."},
-    {"id": "clear", "construct": "competence", "statement": "The tutor explained the information clearly."},
+    {"id": "helpful", "construct": "helpfulness", "statement": "The tutor was helpful."},
 ]
 
 app = Flask(__name__)
@@ -99,7 +94,7 @@ def _new_user() -> tuple[str, dict[str, Any]]:
         "participant_index": None,
         "evaluation_condition": None,
         "trainer_agent_evaluations": [],
-        "application_evaluations": [],
+        "application_evaluations": {},
         "evaluation_ratings": [],
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -128,6 +123,17 @@ def _training_response_count(data: dict[str, Any]) -> int:
     # The initial assistant message contains the fixed facts; subsequent assistant messages are replies.
     count = sum(message.get("role") == "assistant" for message in data.get("messages", [])) - 1
     return max(0, count)
+
+
+def _refresh_fact_message(data: dict[str, Any]) -> None:
+    """Keep the initial fact formatting current for sessions created before a UI revision."""
+    if data.get("mode") not in {"training", "testing"}:
+        return
+    for message in data.get("messages", []):
+        if message.get("role") == "assistant":
+            if "Here are the 15 facts" in message.get("content", ""):
+                message["content"] = WELCOME
+            break
 
 
 def _session_payload(user_id: str, data: dict[str, Any]) -> dict[str, Any]:
@@ -176,6 +182,7 @@ def start_session():
             else:
                 user_id, data = _new_user()
             _assign_condition(data)
+            _refresh_fact_message(data)
             _save_user(user_id, data)
             return jsonify(_session_payload(user_id, data))
     except (ValueError, json.JSONDecodeError, OSError, TypeError):
@@ -330,8 +337,9 @@ def submit_evaluation():
             ]
             data["evaluation_ratings"] = ratings
             serialized = [f"{item['id']}: {score}" for item, score in zip(EVALUATION_ITEMS, responses)]
+            application_ratings = {item["statement"]: score for item, score in zip(EVALUATION_ITEMS, responses)}
             data["trainer_agent_evaluations"] = serialized if condition == "tutor" else []
-            data["application_evaluations"] = serialized if condition == "popup" else []
+            data["application_evaluations"] = application_ratings if condition == "popup" else {}
             data["mode"] = "done"
             _save_user(user_id, data)
     except (ValueError, json.JSONDecodeError, OSError):

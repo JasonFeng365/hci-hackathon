@@ -21,7 +21,7 @@ Requirements: Python 3.10+.
    python backend/app.py --test-mode
    ```
 
-   The backend listens on `http://localhost:5000` by default. A participant may ask up to ten clarification questions about the fixed facts before the input is locked; the inline button can start the knowledge check at any time.
+   The backend listens on `http://localhost:5000` by default. A participant may ask up to ten clarification questions about the fixed facts before the input is locked; the persistent **Take quiz** button beside the chat controls starts the knowledge check at any time.
 
 3. In a second terminal, serve the static frontend from its directory:
 
@@ -63,8 +63,8 @@ The model defaults to `gpt-6-luna`; override it with `OPENAI_MODEL` if needed. T
 
 - The tutor presents the same 15 whale facts in its initial message. Participants can ask clarifications or continue to the five-question multiple-choice knowledge check.
 - Quiz answer choices are shown in a single horizontal, scrollable row. The answer key remains on the backend. The review includes each question, the participant's answer, and right/wrong feedback, but not the correct answer.
-- Evaluation has nine adapted 10-point items: five friendliness items and four competence items. Their wording and order are identical in both conditions. The 10-point scale is intended to align with Study 1 of *Computers Are Social Actors*; these item wordings are our adaptation, not claimed to be the paper's original items.
-- Logs store `participant_index`, `evaluation_condition`, the nine item IDs/constructs/scores, and the training conversation. The relevant legacy response list (`trainer_agent_evaluations` or `application_evaluations`) is populated for the assigned condition. No participant name is collected.
-- The session is marked `done` only after all nine ratings are successfully posted.
+- Evaluation has five adapted 10-point items: friendly, clear, competent/knowledgeable, pleasant to interact with, and helpful. Their wording and order are identical in both conditions. The 10-point scale follows Study 1 of *Computers Are Social Actors*; the condensed item set is an adaptation.
+- Logs store `participant_index`, `evaluation_condition`, the five item IDs/constructs/scores, quiz answers/results, and the training conversation. `application_evaluations` is a JSON object mapping each exact survey statement to its integer score; `trainer_agent_evaluations` remains a list for the tutor condition. No participant name is collected.
+- The session is marked `done` only after all five ratings are successfully posted.
 
 The fact list, five quiz questions, answer key, and rating statements are study materials that should be reviewed before data collection. Quiz questions are in `frontend/app.js`; the matching server-side key is in `backend/app.py`.

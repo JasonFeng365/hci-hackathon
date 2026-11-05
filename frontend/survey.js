@@ -3,14 +3,10 @@ const SESSION_DONE_PREFIX = "fieldnotes_session_done_";
 const API_BASE_URL = "http://localhost:5000";
 const ITEMS = [
   { id: "friendly", construct: "friendliness", statement: "The tutor was friendly." },
-  { id: "warm", construct: "friendliness", statement: "The tutor was warm." },
-  { id: "polite", construct: "friendliness", statement: "The tutor was polite." },
-  { id: "considerate", construct: "friendliness", statement: "The tutor was considerate." },
+  { id: "clear", construct: "clarity", statement: "The tutor explained things clearly." },
+  { id: "competent_knowledgeable", construct: "competence", statement: "The tutor was competent and knowledgeable." },
   { id: "pleasant", construct: "friendliness", statement: "The tutor was pleasant to interact with." },
-  { id: "competent", construct: "competence", statement: "The tutor was competent." },
-  { id: "knowledgeable", construct: "competence", statement: "The tutor was knowledgeable about whales." },
-  { id: "capable", construct: "competence", statement: "The tutor was capable." },
-  { id: "clear", construct: "competence", statement: "The tutor explained the information clearly." },
+  { id: "helpful", construct: "helpfulness", statement: "The tutor was helpful." },
 ];
 
 const params = new URLSearchParams(window.location.search);

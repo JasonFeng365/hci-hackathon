@@ -21,16 +21,11 @@ const ANSWER_COUNT = QUESTIONS.length;
 // in the in-chat tutor condition and the independent survey condition.
 const EVALUATION_ITEMS = [
   { id: "friendly", construct: "friendliness", statement: "The tutor was friendly." },
-  { id: "warm", construct: "friendliness", statement: "The tutor was warm." },
-  { id: "polite", construct: "friendliness", statement: "The tutor was polite." },
-  { id: "considerate", construct: "friendliness", statement: "The tutor was considerate." },
+  { id: "clear", construct: "clarity", statement: "The tutor explained things clearly." },
+  { id: "competent_knowledgeable", construct: "competence", statement: "The tutor was competent and knowledgeable." },
   { id: "pleasant", construct: "friendliness", statement: "The tutor was pleasant to interact with." },
-  { id: "competent", construct: "competence", statement: "The tutor was competent." },
-  { id: "knowledgeable", construct: "competence", statement: "The tutor was knowledgeable about whales." },
-  { id: "capable", construct: "competence", statement: "The tutor was capable." },
-  { id: "clear", construct: "competence", statement: "The tutor explained the information clearly." },
+  { id: "helpful", construct: "helpfulness", statement: "The tutor was helpful." },
 ];
-const TRAINING_COMPLETE = "You can ask me to clarify any of the facts above, or begin the knowledge check whenever you’re ready.";
 
 const $ = (selector) => document.querySelector(selector);
 let userId = localStorage.getItem(SESSION_STORAGE_KEY) || "";
@@ -100,14 +95,13 @@ function setStage(phase) {
     step.classList.toggle("complete", index < current);
   });
   const canChat = phase === "training";
-  $("#chat-form").hidden = !canChat;
+  const showComposer = canChat || phase === "awaiting-testing";
+  $("#chat-form").hidden = !showComposer;
   $("#composer-hint").hidden = !canChat;
   $("#message-input").disabled = busy || !canChat;
   $("#send-button").disabled = busy || !canChat;
-}
-function attachTrainingButton() {
-  const firstAssistant = messages.find((message) => message.role === "assistant");
-  if (firstAssistant) firstAssistant.widget = { type: "start-testing" };
+  $("#take-quiz").hidden = !showComposer;
+  $("#take-quiz").disabled = busy;
 }
 function addMessage(role, content, widget = null) {
   const message = { role, content, widget };
@@ -146,14 +140,7 @@ function renderChat() {
   if (uiPhase === "evaluating") $("#stage-counter").textContent = evaluationCondition === "tutor" ? `Rating ${Math.min(evaluationIndex + 1, EVALUATION_ITEMS.length)} of ${EVALUATION_ITEMS.length}` : "External survey";
 }
 function addWidget(bubble, widget) {
-  if (widget.type === "start-testing") {
-    const button = document.createElement("button");
-    button.className = "primary-button inline-widget-button";
-    button.type = "button";
-    button.textContent = "Begin the knowledge check →";
-    button.addEventListener("click", beginTesting);
-    bubble.append(button);
-  } else if (widget.type === "quiz") {
+  if (widget.type === "quiz") {
     const options = document.createElement("div");
     options.className = "answer-options inline-answer-options";
     options.setAttribute("role", "group");
@@ -391,6 +378,7 @@ function showDone() {
 }
 function initializeEventHandlers() {
   $("#chat-form").addEventListener("submit", sendMessage);
+  $("#take-quiz").addEventListener("click", beginTesting);
   $("#message-input").addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); $("#chat-form").requestSubmit(); }
   });
@@ -438,14 +426,12 @@ async function initialize() {
         if (quizIndex >= ANSWER_COUNT) gradeQuiz();
         else showQuizQuestion(quizIndex);
       } else {
-        attachTrainingButton();
         setStage("awaiting-testing");
         renderChat();
       }
     } else if (data.mode === "evaluating") {
       startEvaluation(false);
     } else {
-      attachTrainingButton();
       setStage("training");
       renderChat();
     }
