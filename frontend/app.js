@@ -1,5 +1,5 @@
 // Change this for a deployed backend. Local development uses Flask on port 5000.
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://immortal-hot-cat.ngrok-free.app/";
 const SESSION_STORAGE_KEY = "fieldnotes_participant_uuid";
 const USER_ANSWERS_PREFIX = "fieldnotes_trainer_evaluations_";
 const QUIZ_ANSWERS_PREFIX = "fieldnotes_quiz_answers_";
