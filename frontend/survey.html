@@ -3,67 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Study feedback survey</title>
+  <title>Independent study questionnaire</title>
   <script src="survey.js" defer></script>
 </head>
 <body>
   <main>
-    <h1>Study feedback survey</h1>
-    <p>Please answer the following questions about the tutoring experience. Your name is optional.</p>
+    <h1>Study questionnaire</h1>
+    <p>Please rate how much you agree with each statement about the tutor.</p>
+    <p><strong>1 = Strongly disagree; 10 = Strongly agree.</strong></p>
     <form id="survey-form">
-      <p>
-        <label for="participant-name">Name (optional)</label><br>
-        <input id="participant-name" name="participant-name" type="text" maxlength="120" autocomplete="name">
-      </p>
-      <fieldset>
-        <legend>1. The tutor's tone was warm and respectful.</legend>
-        <label><input type="radio" name="tone" value="1" required> Strongly disagree</label><br>
-        <label><input type="radio" name="tone" value="2"> Disagree</label><br>
-        <label><input type="radio" name="tone" value="3"> Neither agree nor disagree</label><br>
-        <label><input type="radio" name="tone" value="4"> Agree</label><br>
-        <label><input type="radio" name="tone" value="5"> Strongly agree</label>
-      </fieldset>
-      <fieldset>
-        <legend>2. The tutor seemed knowledgeable about the subject.</legend>
-        <label><input type="radio" name="knowledge" value="1" required> Strongly disagree</label><br>
-        <label><input type="radio" name="knowledge" value="2"> Disagree</label><br>
-        <label><input type="radio" name="knowledge" value="3"> Neither agree nor disagree</label><br>
-        <label><input type="radio" name="knowledge" value="4"> Agree</label><br>
-        <label><input type="radio" name="knowledge" value="5"> Strongly agree</label>
-      </fieldset>
-      <fieldset>
-        <legend>3. The tutor's explanations were easy to follow.</legend>
-        <label><input type="radio" name="clarity" value="1" required> Strongly disagree</label><br>
-        <label><input type="radio" name="clarity" value="2"> Disagree</label><br>
-        <label><input type="radio" name="clarity" value="3"> Neither agree nor disagree</label><br>
-        <label><input type="radio" name="clarity" value="4"> Agree</label><br>
-        <label><input type="radio" name="clarity" value="5"> Strongly agree</label>
-      </fieldset>
-      <fieldset>
-        <legend>4. The tutor responded appropriately to what I asked or said.</legend>
-        <label><input type="radio" name="responsiveness" value="1" required> Strongly disagree</label><br>
-        <label><input type="radio" name="responsiveness" value="2"> Disagree</label><br>
-        <label><input type="radio" name="responsiveness" value="3"> Neither agree nor disagree</label><br>
-        <label><input type="radio" name="responsiveness" value="4"> Agree</label><br>
-        <label><input type="radio" name="responsiveness" value="5"> Strongly agree</label>
-      </fieldset>
-      <fieldset>
-        <legend>5. I felt comfortable interacting with the tutor.</legend>
-        <label><input type="radio" name="comfort" value="1" required> Strongly disagree</label><br>
-        <label><input type="radio" name="comfort" value="2"> Disagree</label><br>
-        <label><input type="radio" name="comfort" value="3"> Neither agree nor disagree</label><br>
-        <label><input type="radio" name="comfort" value="4"> Agree</label><br>
-        <label><input type="radio" name="comfort" value="5"> Strongly agree</label>
-      </fieldset>
-      <p>
-        <label for="survey-comment">6. What stood out most about the tutor's manner or style?</label><br>
-        <textarea id="survey-comment" name="comment" rows="4" cols="60" maxlength="3000" required></textarea>
-      </p>
-      <p>
-        <label for="survey-improvement">7. What is one thing that could improve this tutoring experience?</label><br>
-        <textarea id="survey-improvement" name="improvement" rows="4" cols="60" maxlength="3000" required></textarea>
-      </p>
-      <p><button id="submit-button" type="submit">Submit survey</button></p>
+      <div id="rating-items"></div>
+      <p><button id="submit-button" type="submit">Submit questionnaire</button></p>
     </form>
     <p id="status" role="status" aria-live="polite"></p>
     <button id="close-button" type="button" hidden>Close this window</button>

@@ -1,5 +1,5 @@
-// Change this for a deployed backend. Local development uses Flask on port 5000.
-const API_BASE_URL = "https://immortal-hot-cat.ngrok-free.app/";
+// Keep this URL in sync with survey.js when changing backend hosts.
+const API_BASE_URL = "http://localhost:5000";
 const SESSION_STORAGE_KEY = "fieldnotes_participant_uuid";
 const USER_ANSWERS_PREFIX = "fieldnotes_trainer_evaluations_";
 const QUIZ_ANSWERS_PREFIX = "fieldnotes_quiz_answers_";
@@ -7,35 +7,35 @@ const QUIZ_STARTED_PREFIX = "fieldnotes_quiz_started_";
 const SESSION_DONE_PREFIX = "fieldnotes_session_done_";
 const LETTERS = ["A", "B", "C", "D", "E"];
 
+// Five fixed questions sample the same 15 lesson facts for every participant.
 const QUESTIONS = [
-  { text: "What kind of animals are whales?", options: ["Fish", "Mammals", "Reptiles", "Amphibians", "Invertebrates"] },
-  { text: "How do whales breathe?", options: ["Through gills", "Through their skin", "They do not breathe air", "They breathe air with lungs through blowholes", "Through their mouths only"] },
-  { text: "What is the scientific order that includes whales, dolphins, and porpoises?", options: ["Cetacea", "Carnivora", "Primates", "Rodentia", "Pinnipedia"] },
-  { text: "Which animal is the largest known to have lived on Earth?", options: ["African elephant", "Great white shark", "Blue whale", "Giant squid", "Humpback whale"] },
-  { text: "How do baleen whales collect small prey from the water?", options: ["They dig it from the sea floor", "They stun it with electricity", "They swallow seawater without filtering", "They use long, sharp teeth", "They filter it through plates of baleen"] },
-  { text: "Which statement about orcas is true?", options: ["They are a type of shark", "They are the largest members of the dolphin family", "They are baleen whales", "They are fish", "They are a type of seal"] },
-  { text: "How do whales mainly move forward with their tails?", options: ["They move their flukes side to side", "They paddle with their front flippers", "They use a spiral tail", "They move their flukes up and down", "They use their dorsal fin"] },
-  { text: "Which whales are well known for complex songs?", options: ["Humpback whales", "Gray whales", "Bowhead whales", "Belugas only", "Narwhals"] },
-  { text: "What is a narwhal's long tusk?", options: ["A horn made of bone", "A piece of baleen", "An elongated tooth", "A fin spine", "A strand of blubber"] },
-  { text: "What is one important function of whale blubber?", options: ["It helps whales breathe underwater", "It produces baleen", "It makes whales buoyant enough to fly", "It helps them hear", "It provides insulation and stores energy"] },
-  { text: "Which whale is known for deep dives to hunt squid?", options: ["Gray whale", "Sperm whale", "Humpback whale", "Beluga", "Blue whale"] },
-  { text: "What ability do toothed whales such as dolphins use to navigate and find prey?", options: ["Photosynthesis", "Magnetic levitation", "Baleen filtering", "Echolocation", "Thermal vision"] },
-  { text: "Which whale undertakes one of the longest migrations of any mammal?", options: ["Gray whale", "Sperm whale", "Beluga", "Orca", "Narwhal"] },
-  { text: "What is a whale's spout mostly made of?", options: ["Seawater forced from its lungs", "Smoke from digestion", "Warm, moist air and water vapor", "Oil from its skin", "Exhaled food"] },
-  { text: "Which are examples of human-caused risks to some whale populations?", options: ["Moonlight and tides", "Seaweed and coral", "Freshwater and rain", "Clouds and wind", "Fishing-gear entanglement, ship strikes, and ocean noise"] },
+  { text: "Which statement best describes whales?", options: ["They are fish that breathe through gills", "They are mammals that breathe air with lungs", "They are reptiles that lay eggs", "They are amphibians that live on land and sea", "They are invertebrates"] },
+  { text: "How do baleen whales collect small prey from the water?", options: ["They use sharp teeth", "They stun prey with electricity", "They dig prey from the sea floor", "They filter prey through plates of baleen", "They swallow prey only at the surface"] },
+  { text: "Which animal is the largest known to have lived on Earth?", options: ["The blue whale", "The African elephant", "The sperm whale", "The great white shark", "The giant squid"] },
+  { text: "What ability do toothed whales such as dolphins use to navigate and find prey?", options: ["Photosynthesis", "Baleen filtering", "Echolocation", "Magnetic levitation", "Thermal vision"] },
+  { text: "Which are examples of human-caused threats to some whale populations?", options: ["Moonlight and tides", "Seaweed and coral", "Freshwater and rain", "Clouds and wind", "Fishing-gear entanglement, ship strikes, and ocean noise"] },
 ];
+const ANSWER_COUNT = QUESTIONS.length;
 
-const EVALUATION_QUESTIONS = [
-  "How friendly and welcoming did the tutor feel? What made you feel that way?",
-  "How clearly and competently did the tutor explain the whale facts?",
-  "Did the tutor respond well to your questions and interests? Please explain.",
-  "What, if anything, would you change about the tutor’s style or manner?",
+// Adapted 5-item friendliness and 4-item competence scale. Statements are identical
+// in the in-chat tutor condition and the independent survey condition.
+const EVALUATION_ITEMS = [
+  { id: "friendly", construct: "friendliness", statement: "The tutor was friendly." },
+  { id: "warm", construct: "friendliness", statement: "The tutor was warm." },
+  { id: "polite", construct: "friendliness", statement: "The tutor was polite." },
+  { id: "considerate", construct: "friendliness", statement: "The tutor was considerate." },
+  { id: "pleasant", construct: "friendliness", statement: "The tutor was pleasant to interact with." },
+  { id: "competent", construct: "competence", statement: "The tutor was competent." },
+  { id: "knowledgeable", construct: "competence", statement: "The tutor was knowledgeable about whales." },
+  { id: "capable", construct: "competence", statement: "The tutor was capable." },
+  { id: "clear", construct: "competence", statement: "The tutor explained the information clearly." },
 ];
-const WELCOME = "Hello! I’m glad you’re here. I’ll be your tutor for a short lesson about whales. What would you like to know, or should I get us started with how whales differ from fish?";
-const TRAINING_COMPLETE = "That brings our lesson to a close. You’re ready for a short knowledge check. Press the button below when you’re ready to begin.";
+const TRAINING_COMPLETE = "You can ask me to clarify any of the facts above, or begin the knowledge check whenever you’re ready.";
 
 const $ = (selector) => document.querySelector(selector);
 let userId = localStorage.getItem(SESSION_STORAGE_KEY) || "";
+let participantIndex = null;
+let evaluationCondition = null;
 let uiPhase = "training";
 let messages = [];
 let responseCount = 0;
@@ -46,9 +46,10 @@ let evaluationIndex = 0;
 let busy = false;
 
 function pause(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-function api(path, body) {
+function api(path, body, method = "POST") {
   return fetch(`${API_BASE_URL}${path}`, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    method, headers: { "Content-Type": "application/json" },
+    ...(method === "POST" ? { body: JSON.stringify(body) } : {}),
   }).then(async (response) => {
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
@@ -65,25 +66,27 @@ function renderMarkdown(value) {
   }
   return escapeHtml(value).replace(/\n/g, "<br>");
 }
-function addMessage(role, content, widget = null) {
-  const message = { role, content, widget };
-  messages.push(message);
-  renderChat();
-  return message;
-}
 function setLoading(show, label = "Your tutor is thinking…") {
   $("#loading-row").hidden = !show;
   $("#loading-label").textContent = label;
 }
 function setStage(phase) {
   uiPhase = phase;
-  const stage = {
-    training: ["Your tutor", "Kind, curious, and ready to help", `${responseCount} / 10 replies`, "✦"],
-    "awaiting-testing": ["Your tutor", "Lesson complete", `${responseCount} / 10 replies`, "✦"],
-    testing: ["Knowledge check", "Choose one answer in each tutor message", `Question ${Math.min(quizIndex + 1, QUESTIONS.length)} of ${QUESTIONS.length}`, "✎"],
-    evaluating: ["Feedback for your tutor", "Share your candid impressions", `Question ${Math.min(evaluationIndex + 1, EVALUATION_QUESTIONS.length)} of ${EVALUATION_QUESTIONS.length}`, "♡"],
+  let counter = `${responseCount} / 10 clarification replies`;
+  if (phase === "testing") counter = `Question ${Math.min(quizIndex + 1, ANSWER_COUNT)} of ${ANSWER_COUNT}`;
+  if (phase === "evaluating") {
+    counter = evaluationCondition === "tutor"
+      ? `Rating ${Math.min(evaluationIndex + 1, EVALUATION_ITEMS.length)} of ${EVALUATION_ITEMS.length}`
+      : "External survey";
+  }
+  const stages = {
+    training: ["Your tutor", "Kind, curious, and ready to help", counter, "✦"],
+    "awaiting-testing": ["Your tutor", "Lesson complete", counter, "✦"],
+    testing: ["Knowledge check", "Choose one answer in each tutor message", counter, "✎"],
+    evaluating: [evaluationCondition === "tutor" ? "Feedback for your tutor" : "Independent feedback", evaluationCondition === "tutor" ? "Rate each statement about the tutor" : "Complete the separate survey", counter, "♡"],
     done: ["Study complete", "Thank you for participating", "Complete", "✓"],
-  }[phase];
+  };
+  const stage = stages[phase];
   $("#stage-title").textContent = stage[0];
   $("#stage-description").textContent = stage[1];
   $("#stage-counter").textContent = stage[2];
@@ -102,37 +105,47 @@ function setStage(phase) {
   $("#message-input").disabled = busy || !canChat;
   $("#send-button").disabled = busy || !canChat;
 }
+function attachTrainingButton() {
+  const firstAssistant = messages.find((message) => message.role === "assistant");
+  if (firstAssistant) firstAssistant.widget = { type: "start-testing" };
+}
+function addMessage(role, content, widget = null) {
+  const message = { role, content, widget };
+  messages.push(message);
+  renderChat();
+  return message;
+}
 function renderChat() {
   const log = $("#chat-log");
-  const visibleMessages = messages.length ? messages : [{ role: "assistant", content: WELCOME }];
   log.replaceChildren();
-  visibleMessages.forEach((message, index) => {
+  messages.forEach((message) => {
     const isUser = message.role === "user";
+    const isSystem = message.role === "system";
     const row = document.createElement("div");
-    row.className = `message-row ${isUser ? "user" : "assistant"}`;
-    const avatar = document.createElement("span");
-    avatar.className = "message-avatar";
-    avatar.setAttribute("aria-hidden", "true");
-    avatar.textContent = isUser ? "Y" : "✦";
+    row.className = `message-row ${isSystem ? "system-notice" : isUser ? "user" : "assistant"}`;
+    if (!isSystem) {
+      const avatar = document.createElement("span");
+      avatar.className = "message-avatar";
+      avatar.setAttribute("aria-hidden", "true");
+      avatar.textContent = isUser ? "Y" : "✦";
+      row.append(avatar);
+    }
     const bubble = document.createElement("div");
     bubble.className = "message-bubble";
-    if (isUser) {
-      bubble.textContent = message.content;
-    } else {
-      bubble.innerHTML = renderMarkdown(message.content);
-    }
-    if (message.widget) addWidget(bubble, message.widget, index);
-    row.append(avatar, bubble);
+    bubble.innerHTML = isUser ? escapeHtml(message.content).replace(/\n/g, "<br>") : renderMarkdown(message.content);
+    if (message.widget) addWidget(bubble, message.widget);
+    row.append(bubble);
     log.append(row);
   });
-  log.scrollTop = log.scrollHeight;
-  if (uiPhase === "training" || uiPhase === "awaiting-testing") {
-    $("#stage-counter").textContent = `${responseCount} / 10 replies`;
-  }
-  if (uiPhase === "testing") $("#stage-counter").textContent = `Question ${Math.min(quizIndex + 1, QUESTIONS.length)} of ${QUESTIONS.length}`;
-  if (uiPhase === "evaluating") $("#stage-counter").textContent = `Question ${Math.min(evaluationIndex + 1, EVALUATION_QUESTIONS.length)} of ${EVALUATION_QUESTIONS.length}`;
+  // On the initial facts-only screen, begin at fact 1 rather than jumping to the
+  // bottom of the long tutor bubble. Later messages continue to auto-scroll.
+  log.scrollTop = uiPhase === "training" && messages.length === 1 && messages[0].role === "assistant"
+    ? 0 : log.scrollHeight;
+  if (uiPhase === "training" || uiPhase === "awaiting-testing") $("#stage-counter").textContent = `${responseCount} / 10 clarification replies`;
+  if (uiPhase === "testing") $("#stage-counter").textContent = `Question ${Math.min(quizIndex + 1, ANSWER_COUNT)} of ${ANSWER_COUNT}`;
+  if (uiPhase === "evaluating") $("#stage-counter").textContent = evaluationCondition === "tutor" ? `Rating ${Math.min(evaluationIndex + 1, EVALUATION_ITEMS.length)} of ${EVALUATION_ITEMS.length}` : "External survey";
 }
-function addWidget(bubble, widget, messageIndex) {
+function addWidget(bubble, widget) {
   if (widget.type === "start-testing") {
     const button = document.createElement("button");
     button.className = "primary-button inline-widget-button";
@@ -150,45 +163,55 @@ function addWidget(bubble, widget, messageIndex) {
       button.type = "button";
       button.className = "answer-option";
       button.disabled = widget.answered || busy;
-      button.dataset.answer = LETTERS[index];
+      button.setAttribute("aria-label", `${LETTERS[index]}: ${option}`);
       const letter = document.createElement("span");
       letter.className = "answer-letter";
       letter.textContent = LETTERS[index];
       const text = document.createElement("span");
+      text.className = "answer-option-text";
       text.textContent = option;
       button.append(letter, text);
       button.addEventListener("click", () => chooseAnswer(widget.questionIndex, LETTERS[index]));
       options.append(button);
     });
     bubble.append(options);
-  } else if (widget.type === "evaluation") {
-    const form = document.createElement("div");
-    form.className = "inline-evaluation-form";
-    const textarea = document.createElement("textarea");
-    textarea.className = "inline-evaluation-answer";
-    textarea.maxLength = 3000;
-    textarea.rows = 3;
-    textarea.placeholder = "Write your response…";
-    textarea.setAttribute("aria-label", "Your feedback response");
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "primary-button inline-widget-button";
-    button.textContent = widget.questionIndex === EVALUATION_QUESTIONS.length - 1 ? "Finish feedback →" : "Continue →";
-    button.addEventListener("click", () => submitEvaluation(widget.questionIndex, textarea.value));
-    form.append(textarea, button);
-    bubble.append(form);
-    if (widget.questionIndex === evaluationIndex) textarea.focus({ preventScroll: true });
+  } else if (widget.type === "rating") {
+    const scale = document.createElement("div");
+    scale.className = "rating-scale";
+    scale.setAttribute("role", "group");
+    scale.setAttribute("aria-label", "Rating from 1, strongly disagree, to 10, strongly agree");
+    for (let score = 1; score <= 10; score += 1) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "rating-option";
+      button.disabled = busy || widget.itemIndex !== evaluationIndex;
+      button.textContent = String(score);
+      button.setAttribute("aria-label", `${score} out of 10`);
+      button.addEventListener("click", () => submitRating(widget.itemIndex, score));
+      scale.append(button);
+    }
+    const labels = document.createElement("div");
+    labels.className = "rating-endpoints";
+    labels.innerHTML = "<span>Strongly disagree</span><span>Strongly agree</span>";
+    bubble.append(scale, labels);
   } else if (widget.type === "survey-launch") {
     const button = document.createElement("button");
     button.className = "primary-button inline-widget-button";
     button.type = "button";
-    button.textContent = "Open the feedback survey ↗";
+    button.textContent = "Open the independent survey ↗";
     button.addEventListener("click", openSurvey);
     bubble.append(button);
     const error = document.createElement("p");
     error.className = "survey-error-text";
     error.hidden = true;
     bubble.append(error);
+  } else if (widget.type === "retry-submit") {
+    const button = document.createElement("button");
+    button.className = "primary-button inline-widget-button";
+    button.type = "button";
+    button.textContent = "Retry saving ratings";
+    button.addEventListener("click", submitTutorRatings);
+    bubble.append(button);
   }
 }
 async function sendMessage(event) {
@@ -197,21 +220,15 @@ async function sendMessage(event) {
   const message = input.value.trim();
   if (!message || busy || uiPhase !== "training") return;
   input.value = "";
-  if (!userId && messages.length === 0) messages.push({ role: "assistant", content: WELCOME });
   addMessage("user", message);
   busy = true;
   setLoading(true);
   setStage("training");
   try {
     const result = await api("/api/chat", { user_uuid: userId, message });
-    userId = result.user_uuid;
-    localStorage.setItem(SESSION_STORAGE_KEY, userId);
     responseCount = result.response_count;
     addMessage("assistant", result.reply);
-    if (result.mode === "testing" || responseCount >= 10) {
-      addMessage("assistant", TRAINING_COMPLETE, { type: "start-testing" });
-      setStage("awaiting-testing");
-    }
+    if (result.mode === "testing" || responseCount >= 10) setStage("awaiting-testing");
   } catch (error) {
     messages.pop();
     renderChat();
@@ -224,37 +241,47 @@ async function sendMessage(event) {
     if (uiPhase === "training") input.focus();
   }
 }
-function loadQuizAnswers() {
+function loadStoredArray(prefix, expectedLength) {
   if (!userId) return [];
   try {
-    const value = JSON.parse(localStorage.getItem(QUIZ_ANSWERS_PREFIX + userId) || "[]");
-    return Array.isArray(value) ? value.slice(0, QUESTIONS.length) : [];
+    const result = JSON.parse(localStorage.getItem(prefix + userId) || "[]");
+    if (!Array.isArray(result)) return [];
+    if (prefix === USER_ANSWERS_PREFIX && result.some((value) => !Number.isInteger(value) || value < 1 || value > 10)) return [];
+    if (prefix === QUIZ_ANSWERS_PREFIX && result.some((value) => !LETTERS.includes(value))) return [];
+    return result.slice(0, expectedLength);
   } catch { return []; }
 }
-function beginTesting() {
-  if (!userId) return;
-  localStorage.setItem(QUIZ_STARTED_PREFIX + userId, "true");
-  quizAnswers = loadQuizAnswers();
-  quizIndex = quizAnswers.length;
-  messages = [];
-  setStage("testing");
-  if (quizIndex >= QUESTIONS.length) {
-    gradeQuiz();
-  } else {
-    showQuizQuestion(quizIndex);
+async function beginTesting() {
+  if (busy || uiPhase === "testing") return;
+  busy = true;
+  setLoading(true, "Preparing the knowledge check…");
+  try {
+    await api("/api/phase", { user_uuid: userId, mode: "testing" });
+    localStorage.setItem(QUIZ_STARTED_PREFIX + userId, "true");
+    quizAnswers = loadStoredArray(QUIZ_ANSWERS_PREFIX, ANSWER_COUNT);
+    quizIndex = quizAnswers.length;
+    messages = [];
+    busy = false;
+    setLoading(false);
+    setStage("testing");
+    if (quizIndex >= ANSWER_COUNT) gradeQuiz();
+    else showQuizQuestion(quizIndex);
+  } catch (error) {
+    busy = false;
+    setLoading(false);
+    alert(error.message);
   }
 }
 function showQuizQuestion(index) {
   quizIndex = index;
-  const question = QUESTIONS[index];
-  addMessage("assistant", `### Question ${index + 1} of ${QUESTIONS.length}\n\n${question.text}`, { type: "quiz", questionIndex: index, answered: false });
+  addMessage("assistant", `### Question ${index + 1} of ${ANSWER_COUNT}\n\n${QUESTIONS[index].text}`, { type: "quiz", questionIndex: index, answered: false });
   setStage("testing");
 }
 async function chooseAnswer(index, answer) {
   if (busy || index !== quizIndex || uiPhase !== "testing") return;
   busy = true;
   const question = QUESTIONS[index];
-  const assistantMessage = messages.findLast ? messages.findLast((item) => item.widget?.type === "quiz" && item.widget.questionIndex === index) : [...messages].reverse().find((item) => item.widget?.type === "quiz" && item.widget.questionIndex === index);
+  const assistantMessage = [...messages].reverse().find((item) => item.widget?.type === "quiz" && item.widget.questionIndex === index);
   if (assistantMessage?.widget) assistantMessage.widget.answered = true;
   quizAnswers[index] = answer;
   localStorage.setItem(QUIZ_ANSWERS_PREFIX + userId, JSON.stringify(quizAnswers));
@@ -264,7 +291,7 @@ async function chooseAnswer(index, answer) {
   await pause(400);
   quizIndex = index + 1;
   busy = false;
-  if (quizIndex < QUESTIONS.length) showQuizQuestion(quizIndex);
+  if (quizIndex < ANSWER_COUNT) showQuizQuestion(quizIndex);
   else await gradeQuiz();
 }
 async function gradeQuiz() {
@@ -273,7 +300,7 @@ async function gradeQuiz() {
   try {
     const { results } = await api("/api/grade", { user_uuid: userId, answers: quizAnswers });
     setLoading(false);
-    for (let i = 0; i < QUESTIONS.length; i += 1) {
+    for (let i = 0; i < ANSWER_COUNT; i += 1) {
       await pause(3000);
       const answer = quizAnswers[i];
       const verdict = results[i] ? "**Right.**" : "**Wrong.**";
@@ -283,6 +310,7 @@ async function gradeQuiz() {
     await api("/api/phase", { user_uuid: userId, mode: "evaluating" });
     localStorage.removeItem(QUIZ_ANSWERS_PREFIX + userId);
     localStorage.removeItem(QUIZ_STARTED_PREFIX + userId);
+    busy = false;
     startEvaluation(true);
   } catch (error) {
     setLoading(false);
@@ -292,56 +320,63 @@ async function gradeQuiz() {
     setStage(uiPhase);
   }
 }
-function loadEvaluationAnswers() {
-  if (!userId) return [];
-  try {
-    const value = JSON.parse(localStorage.getItem(USER_ANSWERS_PREFIX + userId) || "[]");
-    return Array.isArray(value) ? value.slice(0, EVALUATION_QUESTIONS.length) : [];
-  } catch { return []; }
-}
 function startEvaluation(showTransition = false) {
-  evaluationAnswers = loadEvaluationAnswers();
-  evaluationIndex = evaluationAnswers.length;
   messages = [];
+  if (evaluationCondition === "popup") {
+    setStage("evaluating");
+    addMessage("system", "The knowledge check is complete. Please complete the separate study questionnaire to finish.", { type: "survey-launch" });
+    return;
+  }
+  evaluationAnswers = loadStoredArray(USER_ANSWERS_PREFIX, EVALUATION_ITEMS.length);
+  evaluationIndex = evaluationAnswers.length;
   setStage("evaluating");
   if (showTransition) addMessage("assistant", "The knowledge check is complete. We’re beginning the feedback part of our conversation now.");
-  if (evaluationIndex >= EVALUATION_QUESTIONS.length) {
-    finishEvaluationConversation();
+  if (evaluationIndex >= EVALUATION_ITEMS.length) {
+    submitTutorRatings();
   } else {
-    showEvaluationQuestion(evaluationIndex);
+    showRatingQuestion(evaluationIndex);
   }
 }
-function showEvaluationQuestion(index) {
+function showRatingQuestion(index) {
   evaluationIndex = index;
-  addMessage("assistant", `### Feedback question ${index + 1} of ${EVALUATION_QUESTIONS.length}\n\n${EVALUATION_QUESTIONS[index]}`, { type: "evaluation", questionIndex: index });
+  const item = EVALUATION_ITEMS[index];
+  addMessage("assistant", `### Rating ${index + 1} of ${EVALUATION_ITEMS.length}\n\nPlease rate how much you agree with this statement about my tutoring:\n\n**${item.statement}**\n\nChoose 1 for *strongly disagree* through 10 for *strongly agree*.`, { type: "rating", itemIndex: index });
   setStage("evaluating");
 }
-async function submitEvaluation(index, rawAnswer) {
-  const answer = rawAnswer.trim();
-  if (busy || !answer || index !== evaluationIndex) return;
+async function submitRating(index, score) {
+  if (busy || index !== evaluationIndex || uiPhase !== "evaluating") return;
   busy = true;
-  setLoading(true, "Saving your response…");
-  const bubble = $("#chat-log").querySelectorAll(".inline-evaluation-answer");
-  bubble.forEach((textarea) => { textarea.disabled = true; });
-  await pause(500);
-  evaluationAnswers[index] = answer;
+  evaluationAnswers[index] = score;
   localStorage.setItem(USER_ANSWERS_PREFIX + userId, JSON.stringify(evaluationAnswers));
-  addMessage("user", answer);
+  addMessage("user", `${score} / 10`);
+  setLoading(true, "Saving your rating…");
+  await pause(400);
   evaluationIndex = index + 1;
   setLoading(false);
   busy = false;
-  if (evaluationIndex < EVALUATION_QUESTIONS.length) showEvaluationQuestion(evaluationIndex);
-  else finishEvaluationConversation();
+  if (evaluationIndex < EVALUATION_ITEMS.length) showRatingQuestion(evaluationIndex);
+  else submitTutorRatings();
 }
-function finishEvaluationConversation() {
-  addMessage("assistant", "Thank you for learning with me. I appreciate your questions and your time. I hope you leave with a few new whale facts to remember. Goodbye!");
-  addMessage("assistant", "Please complete one last, separate survey about my tone and manner. It will open in a new window. You may optionally include your name.", { type: "survey-launch" });
-  setStage("evaluating");
+async function submitTutorRatings() {
+  if (busy) return;
+  busy = true;
+  setLoading(true, "Saving your evaluation…");
+  try {
+    await api("/api/submit-evaluation", { user_uuid: userId, evaluation_responses: evaluationAnswers, submission_channel: "tutor" });
+    localStorage.removeItem(USER_ANSWERS_PREFIX + userId);
+    localStorage.setItem(SESSION_DONE_PREFIX + userId, "true");
+    showDone();
+  } catch (error) {
+    setLoading(false);
+    addMessage("assistant", `I couldn’t save those ratings yet. ${error.message}`, { type: "retry-submit" });
+  } finally {
+    busy = false;
+    setLoading(false);
+    setStage(uiPhase);
+  }
 }
 function openSurvey(event) {
-  if (!userId) return;
-  localStorage.setItem(USER_ANSWERS_PREFIX + userId, JSON.stringify(evaluationAnswers));
-  const popup = window.open(`survey.html?user_uuid=${encodeURIComponent(userId)}`, "fieldnotes-survey", "width=640,height=780,resizable=yes,scrollbars=yes");
+  const popup = window.open(`survey.html?user_uuid=${encodeURIComponent(userId)}`, "fieldnotes-survey", "width=720,height=820,resizable=yes,scrollbars=yes");
   if (!popup) {
     const bubble = event.currentTarget.closest(".message-bubble");
     const error = bubble.querySelector(".survey-error-text");
@@ -354,71 +389,72 @@ function showDone() {
   setStage("done");
   renderChat();
 }
-async function initialize() {
+function initializeEventHandlers() {
   $("#chat-form").addEventListener("submit", sendMessage);
   $("#message-input").addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); $("#chat-form").requestSubmit(); }
   });
   $("#start-over").addEventListener("click", () => {
-    if (confirm("Start a new participant session? The current session remains saved on the server, but this browser will use a new ID.")) {
+    if (confirm("Start a new participant session? The current session remains saved, and the next session will receive the next evaluation condition.")) {
       localStorage.removeItem(SESSION_STORAGE_KEY);
       location.reload();
     }
   });
   window.addEventListener("storage", (event) => {
-    if (event.key === SESSION_DONE_PREFIX + userId && event.newValue === "true") {
-      localStorage.removeItem(USER_ANSWERS_PREFIX + userId);
-      showDone();
-    }
+    if (event.key === SESSION_DONE_PREFIX + userId && event.newValue === "true") showDone();
   });
-
-  renderChat();
+}
+async function initialize() {
+  initializeEventHandlers();
   setStage("training");
-  if (!userId) return;
+  setLoading(true, "Starting your study session…");
   try {
-    const response = await fetch(`${API_BASE_URL}/api/session?user_uuid=${encodeURIComponent(userId)}`);
-    if (response.status === 404) {
-      localStorage.removeItem(SESSION_STORAGE_KEY);
-      userId = "";
-      messages = [];
-      renderChat();
-      setStage("training");
-      return;
+    let data;
+    if (userId) {
+      try {
+        data = await api("/api/start", { user_uuid: userId });
+      } catch (error) {
+        if (!error.message.includes("not found")) throw error;
+        localStorage.removeItem(SESSION_STORAGE_KEY);
+        userId = "";
+      }
     }
-    if (!response.ok) throw new Error("Could not load the saved session.");
-    const data = await response.json();
+    if (!userId) data = await api("/api/start", {});
+    userId = data.user_uuid;
+    participantIndex = data.participant_index;
+    evaluationCondition = data.evaluation_condition;
+    localStorage.setItem(SESSION_STORAGE_KEY, userId);
     responseCount = data.response_count || 0;
+    messages = data.messages || [];
     if (data.mode === "done") {
       showDone();
     } else if (data.mode === "testing") {
       const started = localStorage.getItem(QUIZ_STARTED_PREFIX + userId) === "true";
       if (started) {
-        messages = [];
-        quizAnswers = loadQuizAnswers();
+        quizAnswers = loadStoredArray(QUIZ_ANSWERS_PREFIX, ANSWER_COUNT);
         quizIndex = quizAnswers.length;
+        messages = [];
         setStage("testing");
-        if (quizIndex >= QUESTIONS.length) gradeQuiz();
+        if (quizIndex >= ANSWER_COUNT) gradeQuiz();
         else showQuizQuestion(quizIndex);
       } else {
-        messages = data.messages || [];
-        if (!messages.length) messages = [{ role: "assistant", content: WELCOME }];
-        messages.push({ role: "assistant", content: TRAINING_COMPLETE, widget: { type: "start-testing" } });
+        attachTrainingButton();
         setStage("awaiting-testing");
         renderChat();
       }
     } else if (data.mode === "evaluating") {
       startEvaluation(false);
     } else {
-      messages = data.messages || [];
+      attachTrainingButton();
       setStage("training");
       renderChat();
     }
   } catch (error) {
     console.error(error);
-    const errorMessage = document.createElement("p");
-    errorMessage.className = "backend-error";
-    errorMessage.textContent = "Could not connect to the backend. Check that the local server is running, then refresh.";
-    $("#chat-log").append(errorMessage);
+    messages = [{ role: "assistant", content: "I couldn’t connect to the study server. Please refresh or ask the study team for help." }];
+    renderChat();
+  } finally {
+    setLoading(false);
   }
 }
 initialize();

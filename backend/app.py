@@ -1,4 +1,4 @@
-"""REST backend for the whale-tutoring study."""
+"""REST backend for the whale-tutoring politeness study."""
 from __future__ import annotations
 
 import argparse
@@ -15,54 +15,52 @@ from flask import Flask, jsonify, request
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 LOG_DIR = PROJECT_ROOT / "logs"
+PARTICIPANT_INDEX_PATH = PROJECT_ROOT / "participant_index.json"
 MODEL = os.environ.get("OPENAI_MODEL", "gpt-6-luna")
 TEST_MODE = False
+MAX_CLARIFICATION_REPLIES = 10
 
-SYSTEM_PROMPT = """You are a kind, smart professor tutoring a participant about whales. Be warm,
-curious, patient, and accurate. Guide the lesson proactively while responding to
-the participant's questions and interests. Teach the following study facts in a
-natural, conversational way over the session; do not dump them all at once, and
-never claim to have covered a fact you have not explained:
+TRAINING_FACTS = [
+    "Whales are mammals, not fish. They breathe air with lungs and are warm-blooded.",
+    "Whales give birth to live young and feed their calves milk.",
+    "Whales belong to the order Cetacea, along with dolphins and porpoises.",
+    "Cetaceans include two broad groups: baleen whales and toothed whales.",
+    "Baleen whales filter small prey from water using plates of baleen instead of teeth.",
+    "The blue whale is the largest animal known to have lived on Earth.",
+    "Humpback whales are known for complex songs, especially males on breeding grounds.",
+    "Gray whales and some other whale species migrate very long distances each year.",
+    "Orcas are toothed whales and the largest members of the dolphin family.",
+    "Toothed whales such as dolphins use echolocation to navigate and find prey.",
+    "Sperm whales are deep divers and can hunt squid at great depths.",
+    "A narwhal's long tusk is an elongated tooth, usually found in males.",
+    "Whale blubber helps with insulation and energy storage.",
+    "A whale's tail flukes move up and down to propel it; whales surface to breathe through blowholes.",
+    "Fishing-gear entanglement, ship strikes, and ocean noise are threats to some whale populations.",
+]
 
-- Whales are mammals, not fish. They breathe air with lungs and are warm-blooded.
-- Whales give birth to live young and feed their calves milk.
-- Whales belong to the order Cetacea, along with dolphins and porpoises.
-- Cetaceans are divided into baleen whales and toothed whales.
-- Baleen whales filter small prey from water using plates of baleen.
-- Humpback, blue, gray, and fin whales are baleen whales.
-- Toothed whales use teeth to catch prey; sperm whales and orcas are toothed whales.
-- Despite the common name, orcas are the largest members of the dolphin family.
-- The blue whale is the largest animal known to have lived on Earth.
-- A blue whale's heart is exceptionally large, roughly comparable in size to a small car.
-- The blue whale's tongue can weigh about as much as an elephant.
-- Humpback whales are known for complex songs, especially males on breeding grounds.
-- Humpbacks can migrate thousands of miles between feeding and breeding areas.
-- Gray whales undertake one of the longest migrations of any mammal.
-- Many baleen whales migrate seasonally, feeding in cooler waters and breeding in warmer waters.
-- Whales communicate using sounds; some calls can travel long distances underwater.
-- Toothed whales such as dolphins use echolocation to navigate and find prey.
-- Sperm whales are deep divers and can hunt squid at great depths.
-- Narwhals are toothed whales; the long tusk is an elongated tooth, usually found in males.
-- Belugas are called white whales and can make a wide variety of sounds.
-- The bowhead whale lives in Arctic and sub-Arctic waters and has a very long lifespan.
-- Whale blubber helps with insulation and energy storage.
-- Whale tails are called flukes; they move up and down to propel the animal.
-- The two blowholes of a baleen whale are visible as a paired opening; toothed whales usually have one.
-- Whales surface to breathe through blowholes located on top of their heads.
-- A whale's spout is warm, moist air and water vapor, not water being breathed out from the lungs.
-- Some whale species live in social groups, while others are often solitary.
-- Whales can play important roles in marine ecosystems and nutrient cycling.
-- Entanglement in fishing gear, ship strikes, and ocean noise are threats to some whale populations.
-- Conservation measures and responsible maritime practices can reduce some human-caused risks.
+WELCOME = """Hello! I’m your tutor for a short lesson about whales. Here are the 15 facts we’ll use today. Read through them, then ask me if you’d like any of them clarified.
 
-Use appropriately qualified language for scientific details. Do not test or quiz the
-participant during this tutoring phase. After about ten of your replies, the app will
-move them to an assessment. Keep replies concise and explain ideas clearly."""
+""" + "\n".join(f"{index}. {fact}" for index, fact in enumerate(TRAINING_FACTS, start=1)) + "\n\nYou can ask clarification questions, or press the button below to begin the knowledge check whenever you’re ready."
 
-WELCOME = "Hello! I’m glad you’re here. I’ll be your tutor for a short lesson about whales. What would you like to know, or should I get us started with how whales differ from fish?"
+SYSTEM_PROMPT = """You are a kind, smart professor tutoring a participant about whales. The participant has already been shown a fixed list of 15 whale facts. Answer their clarification questions warmly and accurately, using only the facts in the provided conversation and the fact list below. Do not introduce additional factual claims or quiz the participant. If asked about something outside the list, say that it is outside the scope of this short lesson. Keep answers concise. The lesson list is:
+""" + "\n".join(f"{index}. {fact}" for index, fact in enumerate(TRAINING_FACTS, start=1))
 
-# Answer keys stay on the server. The frontend receives the questions and choices only.
-ANSWER_KEY = ["B", "D", "A", "C", "E", "B", "D", "A", "C", "E", "B", "D", "A", "C", "E"]
+# The five factual questions are shown in the frontend; correct options remain server-side.
+ANSWER_KEY = ["B", "D", "A", "C", "E"]
+
+# Adapted 5-item friendliness and 4-item competence rating sets.
+# The article reports these index sizes and 10-point ratings, but not the original item wording.
+EVALUATION_ITEMS = [
+    {"id": "friendly", "construct": "friendliness", "statement": "The tutor was friendly."},
+    {"id": "warm", "construct": "friendliness", "statement": "The tutor was warm."},
+    {"id": "polite", "construct": "friendliness", "statement": "The tutor was polite."},
+    {"id": "considerate", "construct": "friendliness", "statement": "The tutor was considerate."},
+    {"id": "pleasant", "construct": "friendliness", "statement": "The tutor was pleasant to interact with."},
+    {"id": "competent", "construct": "competence", "statement": "The tutor was competent."},
+    {"id": "knowledgeable", "construct": "competence", "statement": "The tutor was knowledgeable about whales."},
+    {"id": "capable", "construct": "competence", "statement": "The tutor was capable."},
+    {"id": "clear", "construct": "competence", "statement": "The tutor explained the information clearly."},
+]
 
 app = Flask(__name__)
 _file_lock = threading.RLock()
@@ -82,21 +80,27 @@ def _load_user(user_id: str) -> dict[str, Any] | None:
         return json.load(handle)
 
 
-def _save_user(user_id: str, data: dict[str, Any]) -> None:
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    path = _log_path(user_id)
-    temp_path = path.with_suffix(".json.tmp")
+def _atomic_json_write(path: Path, data: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = path.with_suffix(path.suffix + ".tmp")
     with temp_path.open("w", encoding="utf-8") as handle:
         json.dump(data, handle, ensure_ascii=False, indent=2)
     temp_path.replace(path)
+
+
+def _save_user(user_id: str, data: dict[str, Any]) -> None:
+    _atomic_json_write(_log_path(user_id), data)
 
 
 def _new_user() -> tuple[str, dict[str, Any]]:
     user_id = str(uuid.uuid4())
     data: dict[str, Any] = {
         "mode": "training",
+        "participant_index": None,
+        "evaluation_condition": None,
         "trainer_agent_evaluations": [],
         "application_evaluations": [],
+        "evaluation_ratings": [],
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "assistant", "content": WELCOME},
@@ -105,10 +109,36 @@ def _new_user() -> tuple[str, dict[str, Any]]:
     return user_id, data
 
 
+def _assign_condition(data: dict[str, Any]) -> None:
+    """Assign in arrival order: odd participant indices use tutor UI; even use popup."""
+    if data.get("participant_index") and data.get("evaluation_condition") in {"tutor", "popup"}:
+        return
+    current_index = 0
+    if PARTICIPANT_INDEX_PATH.exists():
+        with PARTICIPANT_INDEX_PATH.open("r", encoding="utf-8") as handle:
+            counter_data = json.load(handle)
+        current_index = int(counter_data.get("current_index", 0))
+    new_index = current_index + 1
+    _atomic_json_write(PARTICIPANT_INDEX_PATH, {"current_index": new_index})
+    data["participant_index"] = new_index
+    data["evaluation_condition"] = "tutor" if new_index % 2 == 1 else "popup"
+
+
 def _training_response_count(data: dict[str, Any]) -> int:
-    # The first assistant message is the static welcome, not a generated reply.
+    # The initial assistant message contains the fixed facts; subsequent assistant messages are replies.
     count = sum(message.get("role") == "assistant" for message in data.get("messages", [])) - 1
     return max(0, count)
+
+
+def _session_payload(user_id: str, data: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "user_uuid": user_id,
+        "participant_index": data.get("participant_index"),
+        "evaluation_condition": data.get("evaluation_condition"),
+        "mode": data.get("mode", "training"),
+        "messages": [message for message in data.get("messages", []) if message.get("role") != "system"],
+        "response_count": _training_response_count(data),
+    }
 
 
 def _json_error(message: str, status: int):
@@ -133,11 +163,31 @@ def health():
     return jsonify({"ok": True, "test_mode": TEST_MODE})
 
 
+@app.post("/api/start")
+def start_session():
+    payload = request.get_json(silent=True) or {}
+    user_id = (payload.get("user_uuid") or "").strip()
+    try:
+        with _file_lock:
+            if user_id:
+                data = _load_user(user_id)
+                if data is None:
+                    return _json_error("Participant session not found. Use Start over to begin a new session.", 404)
+            else:
+                user_id, data = _new_user()
+            _assign_condition(data)
+            _save_user(user_id, data)
+            return jsonify(_session_payload(user_id, data))
+    except (ValueError, json.JSONDecodeError, OSError, TypeError):
+        app.logger.exception("Could not start participant session")
+        return _json_error("Could not start this participant session.", 500)
+
+
 @app.get("/api/session")
 def get_session():
     user_id = request.args.get("user_uuid", "")
     if not user_id:
-        return jsonify({"mode": "training", "messages": [], "response_count": 0})
+        return _json_error("Participant ID is required.", 400)
     try:
         with _file_lock:
             data = _load_user(user_id)
@@ -145,11 +195,7 @@ def get_session():
         return _json_error("Could not load this participant session.", 400)
     if data is None:
         return _json_error("Participant session not found. Use Start over to begin a new session.", 404)
-    return jsonify({
-        "mode": data.get("mode", "training"),
-        "messages": [m for m in data.get("messages", []) if m.get("role") != "system"],
-        "response_count": _training_response_count(data),
-    })
+    return jsonify(_session_payload(user_id, data))
 
 
 @app.post("/api/chat")
@@ -172,37 +218,36 @@ def chat():
                 return _json_error("Participant session not found. Use Start over to begin a new session.", 404)
         else:
             user_id, data = _new_user()
+            _assign_condition(data)
 
         if data.get("mode") != "training":
-            return _json_error("The tutoring phase is complete.", 409)
-        if _training_response_count(data) >= 10:
-            data["mode"] = "testing"
-            _save_user(user_id, data)
-            return _json_error("The tutoring phase is complete.", 409)
+            return _json_error("The clarification phase is complete.", 409)
+        if _training_response_count(data) >= MAX_CLARIFICATION_REPLIES:
+            return _json_error("You have reached the clarification limit. Begin the knowledge check.", 409)
 
         messages = data["messages"] + [{"role": "user", "content": message}]
         try:
             if TEST_MODE:
                 time.sleep(3)
                 next_number = _training_response_count(data) + 1
-                reply = f"### Practice tutor response {next_number}\n\nGreat question! Here’s a whale fact to explore: **whales are mammals, not fish**. They breathe air with lungs and need to surface regularly. What else would you like to learn?\n\n*This is a simulated reply for local testing.*"
+                reply = f"### Clarification {next_number}\n\nWhales are mammals, not fish. They breathe air with lungs and surface through blowholes. This is a simulated response for local testing."
             else:
                 from openai import OpenAI
                 client = OpenAI()
                 completion = client.chat.completions.create(model=MODEL, messages=messages)
                 reply = completion.choices[0].message.content or "I’m sorry, I couldn’t form a response. Please try again."
-        except Exception as exc:  # Keep API details out of the browser response.
+        except Exception as exc:
             app.logger.exception("Chat completion failed")
             return _json_error(f"The tutor could not respond. Check the backend configuration and try again. ({type(exc).__name__})", 502)
 
         data["messages"] = messages + [{"role": "assistant", "content": reply}]
         response_count = _training_response_count(data)
-        if response_count >= 10:
+        if response_count >= MAX_CLARIFICATION_REPLIES:
             data["mode"] = "testing"
         _save_user(user_id, data)
 
     return jsonify({"user_uuid": user_id, "reply": reply, "response_count": response_count,
-                    "mode": data["mode"]})
+                    "mode": data["mode"], "evaluation_condition": data["evaluation_condition"]})
 
 
 @app.post("/api/grade")
@@ -222,9 +267,13 @@ def grade():
                 return _json_error("Participant session not found.", 404)
             if data.get("mode") != "testing":
                 return _json_error("The assessment is not available in this phase.", 409)
+            results = [answer == correct for answer, correct in zip(normalized, ANSWER_KEY)]
+            data["quiz_answers"] = normalized
+            data["quiz_results"] = results
+            _save_user(user_id, data)
     except (ValueError, json.JSONDecodeError, OSError):
         return _json_error("Invalid participant session.", 400)
-    return jsonify({"results": [answer == correct for answer, correct in zip(normalized, ANSWER_KEY)]})
+    return jsonify({"results": results})
 
 
 @app.post("/api/phase")
@@ -232,35 +281,36 @@ def update_phase():
     payload = request.get_json(silent=True) or {}
     user_id = (payload.get("user_uuid") or "").strip()
     new_mode = payload.get("mode")
-    if new_mode != "evaluating":
+    if new_mode not in {"testing", "evaluating"}:
         return _json_error("Unsupported phase transition.", 400)
     try:
         with _file_lock:
             data = _load_user(user_id)
             if data is None:
                 return _json_error("Participant session not found.", 404)
-            if data.get("mode") not in {"testing", "evaluating"}:
-                return _json_error("The evaluation phase cannot begin yet.", 409)
-            data["mode"] = "evaluating"
+            old_mode = data.get("mode")
+            allowed = (new_mode == "testing" and old_mode in {"training", "testing"}) or (
+                new_mode == "evaluating" and old_mode in {"testing", "evaluating"}
+            )
+            if not allowed:
+                return _json_error("This phase transition is not available yet.", 409)
+            data["mode"] = new_mode
             _save_user(user_id, data)
     except (ValueError, json.JSONDecodeError, OSError):
         return _json_error("Invalid participant session.", 400)
-    return jsonify({"mode": "evaluating"})
+    return jsonify({"mode": new_mode})
 
 
 @app.post("/api/submit-evaluation")
 def submit_evaluation():
     payload = request.get_json(silent=True) or {}
     user_id = (payload.get("user_uuid") or "").strip()
-    trainer_answers = payload.get("trainer_agent_evaluations")
-    application_answers = payload.get("application_evaluations")
-    name = (payload.get("participant_name") or "").strip()
-    if not isinstance(trainer_answers, list) or not all(isinstance(x, str) for x in trainer_answers):
-        return _json_error("Trainer evaluation responses are required.", 400)
-    if not isinstance(application_answers, list) or not all(isinstance(x, str) for x in application_answers):
-        return _json_error("Survey responses are required.", 400)
-    if len(trainer_answers) > 5 or len(application_answers) > 10 or len(name) > 120:
-        return _json_error("One or more evaluation fields exceed the allowed limits.", 400)
+    responses = payload.get("evaluation_responses")
+    submission_channel = payload.get("submission_channel")
+    if not isinstance(responses, list) or len(responses) != len(EVALUATION_ITEMS):
+        return _json_error(f"Submit exactly {len(EVALUATION_ITEMS)} evaluation ratings.", 400)
+    if any(type(score) is not int or score < 1 or score > 10 for score in responses):
+        return _json_error("Each evaluation rating must be an integer from 1 to 10.", 400)
     try:
         with _file_lock:
             data = _load_user(user_id)
@@ -268,13 +318,25 @@ def submit_evaluation():
                 return _json_error("Participant session not found.", 404)
             if data.get("mode") != "evaluating":
                 return _json_error("This participant is not awaiting evaluation.", 409)
-            data["trainer_agent_evaluations"] = trainer_answers
-            data["application_evaluations"] = application_answers
-            data["participant_name"] = name
+            condition = data.get("evaluation_condition")
+            if condition not in {"tutor", "popup"}:
+                return _json_error("The participant's evaluation condition is missing.", 409)
+            if submission_channel != condition:
+                return _json_error("This questionnaire does not match the assigned evaluation condition.", 409)
+            ratings = [
+                {"item_id": item["id"], "construct": item["construct"],
+                 "statement": item["statement"], "score": score}
+                for item, score in zip(EVALUATION_ITEMS, responses)
+            ]
+            data["evaluation_ratings"] = ratings
+            serialized = [f"{item['id']}: {score}" for item, score in zip(EVALUATION_ITEMS, responses)]
+            data["trainer_agent_evaluations"] = serialized if condition == "tutor" else []
+            data["application_evaluations"] = serialized if condition == "popup" else []
             data["mode"] = "done"
             _save_user(user_id, data)
     except (ValueError, json.JSONDecodeError, OSError):
-        return _json_error("Could not save the evaluation. Please try submitting again.", 400)
+        app.logger.exception("Could not save participant evaluation")
+        return _json_error("Could not save the evaluation. Please try submitting again.", 500)
     return jsonify({"mode": "done"})
 
 

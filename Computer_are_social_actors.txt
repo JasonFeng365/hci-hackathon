@@ -1,0 +1,169 @@
+R%!
+_   -d
+             Factors
+         Human             Systems
+                  inComputiig                                                                       CHI’94 * “CelebratingJtterdepemience”
+
+    The practice       session provided a brief introduction      to the        consistent with our hypotheses, subjects’ responses were
+    use of the interface controls and to the voice output. The                  significantly  less varied in the same-computer   condition
+    tutoring    session provided subjects with a total of 25 to 30              @ < .001), again providing       evidence  that the direct
+    facts, which ostensibly were selected from a large database                 evaluation rule was employed.
+    and were based on the subjects’ knowledge of the topic,
+    such as mass media, computers, social customs, and love                     Using a distinct computer for the subjects’ assessment,
+    and relationships.      The testing session involved a 15-item,             rather than a P&P questionnaire, did not significantly  alter
+    five-alternative      multiple   choice test. Although     subjects         subjects’    responses.     In short, there were the same
+    were told in the instructions         that a total of 15 questions          significant   differences  between the same-computer     and
+    would be randomly           chosen from a set of 2500 possible              different-computer     assessment sessions, while there were
+    questions, in fact, all subjects were given the same 15                     no significant differences between the different computer
+    questions.       During the evaluation        session, a computer           and the P&P conditions.           This confirms   the social
+    evatuated the performance          of the computerized     tutoring         explanation and contradicts the modality explanation.
+    session. (See Figure 1). After the evaluation,             subjects
+    answered a questionnaire             to make assessments of the             STUDY 2: “SELF” VS. “OTHER:”               BOX AND VOICE
+    tutoring,    testing, and evaluation        sessions.   All of the          Will users apply the notions of “self” and “other”                  to
+    questionnaire      items were measured on ten-point Likert                  computers?        This experiment     demonstrates      that people
+    scales.                                                                     apply the following        social rules to computers:        “Other-
+                                                                                praise is more valid than self-praise,”         “Other-praise       is
+    STUDY 1: COMPUTERS AND POLITENESS                                           friendlier than self-praise, “ “Self-criticism   is friendlier than
+    Will people apply politeness norms to computers?        This                other-criticism,”     “ Other-critics  are more intelligent      than
+    experiment demonstrates that people apply the following                     other-praisers,” and “A praised performance is superior to a
+    social rule to computers:   “Direct, as opposed to indirect,                criticized performance.”
+    requests for evaluations elicit more positive responses and
+    more homogeneous       responses.”   In other words, users                  Study 2 Method
+    asked by a computer about its own performance will feel                     In this experimen~ 44 subjects used two or three computers
+    compelled to be more positive than will users asked about                   in a 2 (praise or derogation) by 2 (same voice and box /
+    the computer by an independent source.                                      different voice and box), between-subjects         design,    All
+                                                                                experimental    manipulations   were introduced      during the
+    Study 1 Method                                                              evaluation session. In the “same voice and box” condition,
+    In this experimen~ 33 subjects used one or two computers.                   the evaluation session was on the same computer and in the
+    All subjects used a single computer for the tutoring, testing,              same voice as the tutoring session (only the testing session
+    and evaluation sessions. The experimental           manipulation            was on a distinct computer).     In the “different     voice and
+    was the locus of assessment.          The questionnaire        was          box” condition, the evacuation session was on a different
+    administered in one of three ways: on the same computer                     computer and in a different voice than the tutoring session
+    as the tutoring, testing, and evaluating sessions; on a paper               (see Table 1). In the “praise” condition,        the computer
+    and pencil questionnaire     (P&P); or on a second, distinct                described the performance of the tutoring session favorably
+    computer (see Table 1). We expected that in the same-                       for 12 of the 15 questions; for “criticism,”  the performance
+    computer condition, subjects would treat the computer as if                 was described negatively for 12 of the 15 questions. The
+    it were asking for a direct evacuation of itself and would                  questionnaire    for assessing the tutoring,       testing, and
+    therefore    be positive   and highly     constrained    in their           evaluation    sessions were all paper and pencil.            The
+    assessments. However, the P&P questionnaire should be                       dependent variables were the subject’s perception of the
+    treated by subjects as an independent            request for an             tutor, the test, the evaluation,        and his or her own
+    evaluation, hence, subjects should therefore be more honest                 performance.
+    and varied in their responses.      If the distinct computer
+    operates like the P&P condition,        then we can rule out                Study 2 Results
+    medium effects. The dependent variables in this study were                  As in the politeness study, subjects used inappropriate
+    the subject’s perceptions of the computer and the variance                  social rules in assessing machine behavior.         Subjects
+    in subjects’ perceptions.                                                   responded consistently     with a belief     that a different
+                                                                                computer with a different voice is a distinct social actor.
+    Study 1 Results                                                             When assessing the praise condition with different vs. same
+    Although    subjects indicated in debriefing     that norms of              box, they applied the social rules that praise of others is
+    politeness do not apply to interactions with computers, they                more accurate and friendly than praise of self. Specifically,
+    did apply them in evaluating the computer. As predicted, in                 when the praised evaluation was on a different box and in a
+    assessing the computer’s        performance     in the same-                different voice, subjects said the tutor performed better (12
+    computer condition,     subjects said that the tutoring was                 of 14 items; p < .01), the praise was more accurate
+    more friendly    (based on a five-item    index; p < .01) and               (p<. 05), and the praise was more friendly (p< .01).
+    more competent (based on a four-item index; p < .02) than
+    in the P&P assessment. Simitarly, using the same items for                  Also consistent with treating a different box with a different
+    the indices, the computer-based evaluation session was said                 voice as a distinct social actor, subjects used the rule that
+    to be more friendly        @ < .001) and more competent                     other-critics  are less friendly  but more intelligent     than
+    (p< .01) when the computer asked about itself.            Also              other-praisers (see Figure 2): In the derogation condition,
+
+
+
+                                                                           74
+         Massachusetts
+    Bosfon,       USA~ April24-28,1994                                                                               Factors
+                                                                                                                 Human             Systems
+                                                                                                                          inComputimg
+                                                                                                                                          !5?
+                                                                                                                                          ——
+subjects assessed the different box and voice evaluation as                          different box), between-subjects design. The experiment is
+less friendly (p c .001) and more intelligent (see Figure 3;                         identical to Study 2, except that the voice in which the
+p < .03).                                                                            evaluation is presented as well as the box on which the
+                                                                                     evaluation   occurs vary independently.        That is, eight
+                                                                                     distinct conditions are possible during evaluation (see Table
+  ‘1                                                                                 1), As in Study 2, the dependent variables were the
+                                                                                     subject’s perception of the tutor, the test, the evaluation,
+                                                                                     and his or her own performance,
+                                                      Vafence   of Evaluation
+
+
+
+
+                                                     U
+                                                                                     Study 3 Results
+                                                          +     Praise               Subjects responded to different       voices as if they were
+                                                                                     distinct social actors, and to the same voice as if it were the
+                                                          +     Derogation           same social actor, regardless of whether the different voice
+                                                                                     was on the same or different computer.        That is, different
+                                                                                     voices on the same computer elicit the same responses as
+                                                                                     different voices on a different computer.       Specifically,  in
+
+
+  L         Self
+                Source of Evaluation
+                                          Ofher
+                                                                                     both the same and different computer conditions, different-
+                                                                                     voice subjects perceived
+                                                                                     significantly
+                                                                                                                    the evaluation    session to be
+                                                                                                     more accurate (J4 = 5.3) than did same-voice
+                                                                                     subjects (A4 = 4.2, F(80,1) = 4.66, p < .03). This result is
+                                                                                     consistent with subjects treating different voices as distinct
+       Figure     2:     Perceived Friendliness as a Function of the                 social actors and treating the same voice as the same sociat
+                         Source and Valence of the Evaluation (N = 44)
+                                                                                     actor. Different-voice    subjects also perceived the tutoring
+                                                                                     session to be fairer (ill = 6.4) than did same-voice subjects
+                                                                                     (Ikf = 5.5, F(80,1) = 4.07, p c .05). Finally, when asked to
+                                                                                     assess the tutor’s performance relative to the evaluation,
+                                                                                     different-voice   subjects perceived less absolute difference
+                                                                                     (M = 1.3) than did same-voice             subjects   (ivI = 1.9,
+                                                      Vafence   of Evacuation        F’(80,1) = 7.6, p < .01).
+                                                          q      Praise
+                                                                                     In assessing the friendliness of the computers,        subjects
+                                                          -      Derogation
+                                                                                     applied the social rules, “Praise of others is friendlier than
+                                                      m                              praise of self,” and “Criticism    of self is friendlier   than
+                                                                                     criticism of others” to the computers. Figure 4 presents the
+                                                                                     mean perceived friendliness for each of the eight cellx
+
+
+
+  s~
+            Self                          other
+                Source    of Evaluation                                                                                                  Source   of Evaluation
+
+       Figure    3:      Perceived Sophistication as a Function of the
+                         Source and Valence of the Evaluation (N = 44)
+                                                                                                                                         ~~~~                 v~i~ .
+                                                                                                                                                       Same
+                                                                                                                                                          Box
+
+Finally, the rule that a praised performance is better than a                                                                            ~,$ame               Voia     .
+criticized performance was applied by subjects, as a praised                                                                                           Different     Box
+tutor was evaluated as having performed better (14 of 14;
+p c .001) than a criticized tutor. Subjects even perceived                                                                               ~             Different     Voice
+                                                                                                                                                       - Same Box
+that they answered       more questions    correctly  in this
+condition (p c .001), though in fact they did not. Thus,                                                                                 ~             Different     Voice
+notions of “self” and “other” are applied to computers.                                                                                                - Different    Box
+
+
+
+STUDY 3: “SELF” VS. “OTHER:”               BOX OR VOICE
+On what basis do users distinguish computers as “self’ or
+“other” — the voice or the box? The social rules tested by
+this experiment are the same as those in Study 2; however,                                             Praise                Criticism
+this study takes the question one step further by pinpointing
+                                                                                                       Valence   of Evaluation
+the locus of the self j other attribution.
+                                                                                            Figure   4: Perceived  Friendliness  as a Function          of
+Study 3 Method                                                                                          Source and Va!ence of Evaluation
+
+This experiment,     which involved     66 subjects, is an
+extension of the previous study. It is a 2 (praise/ criticism)                       There was a significant interaction between the valence of
+by 2 (same voice / different     voice) by 2 (same box /                             the evaluation and whether the tutoring and evaluation
+
+
+
+                                                                                75
+
