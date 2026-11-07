@@ -67,4 +67,8 @@ The model defaults to `gpt-6-luna`; override it with `OPENAI_MODEL` if needed. T
 - Logs store `participant_index`, `evaluation_condition`, the five item IDs/constructs/scores, quiz answers/results, and the training conversation. `application_evaluations` is a JSON object mapping each exact survey statement to its integer score; `trainer_agent_evaluations` remains a list for the tutor condition. No participant name is collected.
 - The session is marked `done` only after all five ratings are successfully posted.
 
+## Analyzing logged data
+
+Run `parse_logs/analyze_logs.py` to parse all participant logs from `logs/`, print a summary table, and generate figures saved to `parse_logs/figures/`. See `parse_logs/README.md` for details.
+
 The fact list, five quiz questions, answer key, and rating statements are study materials that should be reviewed before data collection. Quiz questions are in `frontend/app.js`; the matching server-side key is in `backend/app.py`.
