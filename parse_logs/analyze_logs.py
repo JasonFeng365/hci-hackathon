@@ -401,6 +401,72 @@ def plot_construct_correlation(records: list[dict], output_dir: Path) -> None:
     print(f"[OK] Saved {out}")
 
 
+def plot_questions_per_participant(records: list[dict], output_dir: Path) -> None:
+    """Grouped bar chart of per-participant question counts, split by evaluation condition.
+
+    Only includes participants who completed the study (mode == 'done').
+    """
+    points = []
+    for r in records:
+        if r.get("mode") != "done":
+            continue
+        n_questions = extract_user_question_count(r)
+        cond = r.get("evaluation_condition", "unknown")
+        idx = r.get("participant_index", "?")
+        points.append({"index": idx, "questions": max(0, n_questions), "condition": cond})
+
+    if not points:
+        print("[WARN] No completed evaluations — skipping per-participant questions plot.")
+        return
+
+    df = pd.DataFrame(points)
+    conditions = sorted(df["condition"].unique())
+
+    fig, ax = plt.subplots(figsize=(7, 5))
+    bar_width = 0.35
+    x_base = np.arange(len(conditions))
+
+    for i, cond in enumerate(conditions):
+        sub = df[df["condition"] == cond]
+        # Sort by question count for readability
+        sorted_vals = sorted(sub["questions"].tolist())
+        color = "#4C72B0" if cond == "tutor" else "#DD8452"
+        ax.bar(
+            x_base[i] + np.arange(len(sorted_vals)) * bar_width,
+            sorted_vals,
+            width=bar_width,
+            label=f"{cond} (n={len(sub)})",
+            color=color,
+            edgecolor="white",
+        )
+
+    # Annotate each bar with its value
+    for i, cond in enumerate(conditions):
+        sub = df[df["condition"] == cond].sort_values("questions")
+        vals = sub["questions"].tolist()
+        for j, v in enumerate(vals):
+            ax.text(
+                x_base[i] + j * bar_width + bar_width / 2,
+                v + 0.15,
+                str(v),
+                ha="center", va="bottom", fontsize=9, fontweight="bold",
+            )
+
+    # Set x-ticks at the center of each group
+    tick_positions = [x_base[i] + bar_width / 2 for i in range(len(conditions))]
+    ax.set_xticks(tick_positions)
+    ax.set_xticklabels([f"{c}\n(n={len(df[df['condition']==c])})" for c in conditions])
+
+    ax.set_ylabel("Number of User Messages in Training Phase")
+    ax.set_title("Per-Participant Question Count by Evaluation Condition\n(completed participants only)")
+    ax.set_ylim(0, max(df["questions"].max() * 1.3, 2))
+    fig.tight_layout()
+    out = output_dir / "questions_per_participant.png"
+    fig.savefig(out, dpi=150)
+    plt.close(fig)
+    print(f"[OK] Saved {out}")
+
+
 # ---------------------------------------------------------------------------
 # Summary statistics (printed to stdout)
 # ---------------------------------------------------------------------------
@@ -531,6 +597,7 @@ def main() -> None:
     plot_quiz_performance(records, output_dir)
     plot_questions_distribution(records, output_dir)
     plot_construct_correlation(records, output_dir)
+    plot_questions_per_participant(records, output_dir)
 
     print(f"\nAll figures saved to: {output_dir}")
 

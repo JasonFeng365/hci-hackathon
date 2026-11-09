@@ -43,3 +43,4 @@ python parse_logs/analyze_logs.py --include-empty-sessions
 | `quiz_performance.png` | Quiz correctness by evaluation condition |
 | `questions_distribution.png` | Histogram of user question counts in training phase |
 | `construct_correlation.png` | Pearson correlation heatmap between sentiment constructs |
+| `questions_per_participant.png` | Per-participant question counts for completed participants, grouped by evaluation condition |
